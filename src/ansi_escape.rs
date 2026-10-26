@@ -1,0 +1,101 @@
+use std::fmt::Display;
+
+#[allow(dead_code)]
+pub enum Color {
+    Default,
+    Black,
+    Red,
+    Green,
+    Yellow,
+    Blue,
+    Magenta,
+    Cyan,
+    Gray,
+    LightBlack,
+    LightRed,
+    LightGreen,
+    LightYellow,
+    LightBlue,
+    LightMagenta,
+    LightCyan,
+    White,
+    C256(i8),
+}
+impl Display for Color {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Color::Default => write!(f, "\x1b[39m"),
+            Color::Black => write!(f, "\x1b[30m"),
+            Color::Red => write!(f, "\x1b[31m"),
+            Color::Green => write!(f, "\x1b[32m"),
+            Color::Yellow => write!(f, "\x1b[33m"),
+            Color::Blue => write!(f, "\x1b[34m"),
+            Color::Magenta => write!(f, "\x1b[35m"),
+            Color::Cyan => write!(f, "\x1b[36m"),
+            Color::Gray => write!(f, "\x1b[37m"),
+            Color::LightBlack => write!(f, "\x1b[90m"),
+            Color::LightRed => write!(f, "\x1b[91m"),
+            Color::LightGreen => write!(f, "\x1b[92m"),
+            Color::LightYellow => write!(f, "\x1b[93m"),
+            Color::LightBlue => write!(f, "\x1b[94m"),
+            Color::LightMagenta => write!(f, "\x1b[95m"),
+            Color::LightCyan => write!(f, "\x1b[96m"),
+            Color::White => write!(f, "\x1b[97m"),
+            Color::C256(n) => write!(f, "\x1b[38;5;{}", n),
+        }
+    }
+}
+
+#[allow(dead_code)]
+pub enum Style {
+    Reset,
+    Bold,
+    NotBold,
+    Italic,
+    NotItalic,
+    Underline,
+    NotUnderline,
+    Invert,
+    NotInvert,
+}
+impl Display for Style {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Style::Reset => write!(f, "\x1b[0m"),
+            Style::Bold => write!(f, "\x1b[1m"),
+            Style::NotBold => write!(f, "\x1b[22m"),
+            Style::Italic => write!(f, "\x1b[3m"),
+            Style::NotItalic => write!(f, "\x1b[23m"),
+            Style::Underline => write!(f, "\x1b[4m"),
+            Style::NotUnderline => write!(f, "\x1b[24m"),
+            Style::Invert => write!(f, "\x1b[7m"),
+            Style::NotInvert => write!(f, "\x1b[27m"),
+        }
+    }
+}
+
+#[allow(dead_code)]
+pub enum Other {
+    Home,
+    Goto(i16, i16),
+    Up(i16),
+    Down(i16),
+    Right(i16),
+    Left(i16),
+    Column(i16),
+    Clear,
+}
+impl Display for Other {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Other::Home => write!(f, "\x1b[H"),
+            Other::Goto(line, column) => write!(f, "\x1b[{};{}H", line, column),
+            Other::Up(n) => write!(f, "\x1b[{}A", n),
+            Other::Down(n) => write!(f, "\x1b[{}B", n),
+            Other::Right(n) => write!(f, "\x1b[{}C", n),
+            Other::Left(n) => write!(f, "\x1b[{}D", n),
+            Other::Column(n) => write!(f, "\x1b[{}G", n),
+            Other::Clear => write!(f, "\x1b[2J\x1b[H"),
+        }
+    }
+}
