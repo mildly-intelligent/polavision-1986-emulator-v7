@@ -1,0 +1,6 @@
+[package]
+name = "polavision-1986-emulator-v7"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
