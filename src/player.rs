@@ -35,4 +35,10 @@ impl<'a> Player<'a> {
             return;
         }
     }
+
+    pub fn draw(&self, (x, y, w, h): (u16,u16,u16,u16)) {
+        for i in 0..h {
+            print!("{}{}{}{}", Goto(self.pos.0*h+y+i, self.pos.1*w+x), Invert, "O".repeat(w as usize), NotInvert);
+        }
+    }
 }

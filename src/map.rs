@@ -21,4 +21,19 @@ impl Map {
             l11.to_string()
         ])
     }
+
+    pub fn draw(&self, (x, y, w, h): (u16,u16,u16,u16)) {
+        for (i, line) in self.0.iter().enumerate() {
+            let line = line
+                .replace(' ', " ".repeat(w as usize).as_str())
+                .replace('-', "-".repeat(w as usize).as_str())
+                .replace('|', "|".repeat(w as usize).as_str())
+                .replace('.', ".".repeat(w as usize).as_str())
+                .replace('+', "+".repeat(w as usize).as_str())
+                .replace('#', "#".repeat(w as usize).as_str());
+            for j in 0..h {
+                print!("{}{line}", Goto(h*i as u16+y+j, x));
+            }
+        }
+    }
 }
