@@ -1,5 +1,8 @@
 use ncurses::{addch, addstr, clear};
 
+#[allow(unused_imports)]
+use crate::ansi_escape::{Color::*, Style::*, Other::*};
+
 pub struct Map(pub Vec<String>);
 impl Map {
     pub fn new(l0:&str,l1:&str,l2:&str,l3:&str,l4:&str,l5:&str,l6:&str,l7:&str,l8:&str,l9:&str,l10:&str,l11:&str) -> Self {
@@ -17,13 +20,5 @@ impl Map {
             l10.to_string(),
             l11.to_string()
         ])
-    }
-    pub fn disp(&self) -> Result<(), Box<dyn std::error::Error>> {
-        clear();
-        for line in &self.0 {
-            addstr(line.as_str())?;
-            addch('\n' as u32);
-        }
-        Ok(())
     }
 }

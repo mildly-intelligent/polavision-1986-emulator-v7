@@ -77,12 +77,12 @@ impl Display for Style {
 #[allow(dead_code)]
 pub enum Other {
     Home,
-    Goto(i16, i16),
-    Up(i16),
-    Down(i16),
-    Right(i16),
-    Left(i16),
-    Column(i16),
+    Goto(u16, u16),
+    Up(u16),
+    Down(u16),
+    Right(u16),
+    Left(u16),
+    Column(u16),
     Clear,
 }
 impl Display for Other {
