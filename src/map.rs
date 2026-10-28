@@ -3,6 +3,11 @@ use ncurses::{addch, addstr, clear};
 #[allow(unused_imports)]
 use crate::ansi_escape::{Color::*, Style::*, Other::*};
 
+fn repeat(s: &mut String, c1: char, c2: &str, n: u16) {
+    *s = s.replace(c1, c2.repeat(n.into()).as_str());
+}
+
+#[derive(Debug)]
 pub struct Map(pub Vec<String>);
 impl Map {
     pub fn new(l0:&str,l1:&str,l2:&str,l3:&str,l4:&str,l5:&str,l6:&str,l7:&str,l8:&str,l9:&str,l10:&str,l11:&str) -> Self {
@@ -22,18 +27,41 @@ impl Map {
         ])
     }
 
-    pub fn draw(&self, (x, y, w, h): (u16,u16,u16,u16)) {
+    pub fn at(&self, pos: (u16, u16)) -> Option<u8> {
+        Some(*self.0.get(pos.0 as usize)?.as_bytes().get(pos.1 as usize)?)
+    }
+
+    pub fn draw(&self, player: &mut crate::player::Player, (x, y, w, h): (u16,u16,u16,u16)) {
         for (i, line) in self.0.iter().enumerate() {
-            let line = line
-                .replace(' ', " ".repeat(w as usize).as_str())
-                .replace('-', "-".repeat(w as usize).as_str())
-                .replace('|', "|".repeat(w as usize).as_str())
-                .replace('.', ".".repeat(w as usize).as_str())
-                .replace('+', "+".repeat(w as usize).as_str())
-                .replace('#', "#".repeat(w as usize).as_str());
+            let mut line = line.clone();
+            repeat(&mut line, ' ', " ", w);
+            repeat(&mut line, '-', "-", w);
+            repeat(&mut line, '|', "|", w);
+            repeat(&mut line, '+', "+", w);
+            repeat(&mut line, '#', "#", w);
+
+            if let Some(c) = player.interact {
+                repeat(&mut line, c as char, "*", w);
+            }
+
+            for n in '0'..='9' {
+                repeat(&mut line, n, "?", w);
+            }
+            for n in 'A'..='F' {
+                repeat(&mut line, n, "?", w);
+            }
+
+            // Gang what the fuck is this line 😔✌️
+            line = line.replace("*".repeat(w.into()).as_str(), &format!("{}{}{}", Blink, "*".repeat(w.into()), NotBlink).to_string());
+
             for j in 0..h {
                 print!("{}{line}", Goto(h*i as u16+y+j, x));
             }
         }
+        // if let Some(p) = player.get_interact() {
+        //     for y in p.0*h+y..p.0*h+y+h {
+        //         print!("{}{}{}{}", Goto(y, p.1*w+x), Blink, "?".repeat(w as usize), NotBlink);
+        //     }
+        // }
     }
 }

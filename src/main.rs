@@ -6,7 +6,7 @@ mod image;
 
 use std::{thread::sleep, time::Duration};
 
-use ncurses::{clear, curs_set, endwin, getch, initscr, refresh};
+use ncurses::{clear, curs_set, endwin, getch, getmaxx, getmaxy, getmaxyx, initscr, refresh};
 
 #[allow(unused_imports)]
 use ansi_escape::{Color::*, Style::*, Other::*};
@@ -40,45 +40,69 @@ const TEXT: &str = "[38;5;23m███████[38;5;24m█[38;5;23m█[3
 [38;5;233m█[38;5;232m██[38;5;233m██[38;5;232m██[38;5;233m██[38;5;232m██[38;5;233m███████████████[38;5;234m██[38;5;233m██████[38;5;234m█[38;5;235m█[38;5;234m█[38;5;233m██████[38;5;235m██[38;5;233m███████[38;5;235m█[38;5;234m█[38;5;233m█████████[38;5;232m█[38;5;233m█[38;5;232m██[38;5;233m██[38;5;232m██[38;5;233m██[38;5;232m███[38;5;233m█[38;5;232m█[38;5;233m█[38;5;232m█[0m
 [38;5;232m█[38;5;233m█[38;5;232m████████[38;5;233m██[38;5;232m█████[38;5;233m█[38;5;232m█[38;5;233m███[38;5;232m█[38;5;233m█[38;5;232m█[38;5;233m█[38;5;234m█[38;5;233m████████[38;5;234m█[38;5;233m███████[38;5;234m██[38;5;233m██[38;5;232m██[38;5;233m█[38;5;232m█[38;5;233m█[38;5;234m█[38;5;233m█[38;5;232m█[38;5;233m█[38;5;232m█[38;5;233m█[38;5;232m██[38;5;233m██[38;5;232m█[38;5;233m█[38;5;232m█[38;5;233m█[38;5;232m█[38;5;233m█[38;5;232m██████[38;5;233m█[38;5;232m█████[0m";
 
-const WORLD_SCALE: (u16,u16,u16,u16) = (12, 6, 3, 2);
-
 // use crate::image::{TEXT, draw_image};
 
+const SCALE: (u16,u16) = (5,3);
+
+fn do_interact(player: &Player) {
+    if let Some(i) = player.interact { match i {
+        0 => draw_image(2, 2, TEXT),
+        1 => draw_image(20, 20, TEXT),
+        _ => ()
+    }}
+}
+
 fn main() {
-    initscr();
+    let w = initscr();
+    let screen_w = getmaxx(w) as u16;
+    let screen_h = getmaxy(w) as u16;
     println!("{}\x1b[?25l", Clear);
 
     let map:Map = Map::new("              -------           ",
-                           "        -------.....------      ",
-                           "---------................|      ",
-                           "|........................|      ",
-                           "---------................+###   ",
-                           "        ---------+--------  #   ",
-                           "                 #  ------ ##   ",
-                           "  -------------  ###+....| #    ",
-                           "  |...........|  #  ---+-- #####",
-                           "  |...........+###     #       #",
-                           "  -------------        #       #",
-                           "                       #########",);
+                           "        ---00--     ------      ",
+                           "---------                |      ",
+                           "|                   1    +##### ",
+                           "---------------          |    # ",
+                           "              ---+--------    # ",
+                           "  -------------  #         #### ",
+                           "  |           |  #  ------ #    ",
+                           "  |   2222    |  ###+    - #####",
+                           "  |           |  #  ---+--     #",
+                           "  --------+----  #     #       #",
+                           "          ########     #########",);
+
     let mut player = Player {
         map: &map,
         pos: (4,14),
+        interact: None
     };
 
+    let world_scale = (
+        (screen_w - (map.0[0].len() as u16*SCALE.0))/2,
+        (screen_h - (map.0.len() as u16*SCALE.1))/2,
+        SCALE.0,
+        SCALE.1
+    );
+
+    dbg!(world_scale);
+    
     loop {
+        // break;
+
         match getch() {
             65 => player.mov(MoveDir::Up),
             66 => player.mov(MoveDir::Down),
             68 => player.mov(MoveDir::Left),
             67 => player.mov(MoveDir::Right),
-            10 => { draw_image(2, 2, TEXT); },
+            10 => do_interact(&player),
             _ => (),
         }
 
         print!("{}{}", Clear, Home);
-        map.draw(WORLD_SCALE);
-        player.draw(WORLD_SCALE);
+        player.get_interact();
+        map.draw(&mut player, world_scale);
+        player.draw(world_scale);
         println!();
-        // draw_image(2, 2, TEXT);
     }
+    dbg!(player);
 }

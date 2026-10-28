@@ -55,6 +55,8 @@ pub enum Style {
     NotItalic,
     Underline,
     NotUnderline,
+    Blink,
+    NotBlink,
     Invert,
     NotInvert,
 }
@@ -68,6 +70,8 @@ impl Display for Style {
             Style::NotItalic => write!(f, "\x1b[23m"),
             Style::Underline => write!(f, "\x1b[4m"),
             Style::NotUnderline => write!(f, "\x1b[24m"),
+            Style::Blink => write!(f, "\x1b[5m"),
+            Style::NotBlink => write!(f, "\x1b[25m"),
             Style::Invert => write!(f, "\x1b[7m"),
             Style::NotInvert => write!(f, "\x1b[27m"),
         }

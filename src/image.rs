@@ -8,7 +8,7 @@ pub fn draw_image(x: u16, y: u16, text: &str) {
         print!("{}", Goto(y+i as u16, x));
         for (j, ch) in line.split("").enumerate() {
             print!("{ch}");
-            sleep(Duration::from_micros(500));
+            sleep(Duration::from_millis(1));
         }
     }
 }
