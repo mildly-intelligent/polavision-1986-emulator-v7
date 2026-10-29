@@ -1,10 +1,6 @@
-# polavision-1986-emulator-v7
+# recon-1986-emulator-v3
 
-Version 7.0 of the community emulator of the 1986 arcade game, *Polavision* by Eremita Interactive LLC. This emulator is not officially licensed by Eremita Interactive LLC. or parent companies.
-
-## Polavision
-
-The cult classic 80s arcade game, *Polavision* by Erimita Interactive emulated for generations to come to play and enjoy. The game had innovative graphics for its time and a rich and dark story that captivated players in arcades nationwide.
+Version 3.0 of the community emulator of the 1986 arcade game, *Recon* by Eremita Interactive LLC. This emulator is not officially licensed by Eremita Interactive LLC. or parent companies.
 
 ## Features
 
