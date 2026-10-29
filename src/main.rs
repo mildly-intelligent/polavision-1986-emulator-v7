@@ -26,7 +26,7 @@ fn main() {
     let screen_h = getmaxy(win) as u16;
     println!("{}\x1b[?25l", Clear);
 
-    let map:Map = Map::new("              -------           ",
+    let mut map = Map::new("              -------           ",
                            "        ---00--     ------      ",
                            "---------                |      ",
                            "|                   1    +##### ",
@@ -38,6 +38,9 @@ fn main() {
                            "  |           |  #  ---+--     #",
                            "  --------+----  #     #       #",
                            "          ########     #########",);
+    map
+        .set_interact(b'0', "description", |w,p,m| Overlay::print_new(w, "text"))
+        .set_interact(b'1', "description", |w,p,m| Overlay::print_new(w, "more text"));
 
     let mut player = Player {
         pos: (4,14),

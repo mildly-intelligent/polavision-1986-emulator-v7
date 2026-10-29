@@ -10,12 +10,16 @@ pub enum Context {
 
 const TEXT: &str = "THIS IS A REALLY COOL TEST EXAMPLE ALSO FUCK YOU DERMOTT";
 
-fn do_interact(w: *mut i8, player: &Player) {
-    if let Some(i) = player.interact { match i {
-        b'0' => Overlay::print_new(w, TEXT),
-        b'1' => Overlay::print_new(w, TEXT),
-        _ => ()
-    }}
+fn do_interact(w: *mut i8, player: &Player, map: &Map) {
+    if let Some(i) = player.interact {
+        (map.get_interact(i).unwrap().action)(w, player, map)
+    }
+
+    // if let Some(i) = player.interact { match i {
+    //     b'0' => Overlay::print_new(w, TEXT),
+    //     b'1' => Overlay::print_new(w, TEXT),
+    //     _ => ()
+    // }}
 }
 
 pub fn handle_input(ctx: Context, player: Option<&mut Player>, map: Option<&Map>, w: Option<*mut i8>) -> bool {
@@ -26,7 +30,7 @@ pub fn handle_input(ctx: Context, player: Option<&mut Player>, map: Option<&Map>
             66 => player.unwrap().mov(MoveDir::Down, map.unwrap()),
             68 => player.unwrap().mov(MoveDir::Left, map.unwrap()),
             67 => player.unwrap().mov(MoveDir::Right, map.unwrap()),
-            10 => do_interact(w.unwrap(), &player.unwrap()),
+            10 => do_interact(w.unwrap(), &player.unwrap(), &map.unwrap()),
             _ => (),
         },
         Context::Overlay => match key {

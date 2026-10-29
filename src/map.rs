@@ -1,21 +1,32 @@
+use std::collections::HashMap;
+
 use ncurses::{addch, addstr, clear, getmaxx, getmaxy};
 
 #[allow(unused_imports)]
 use crate::ansi_escape::{Color::*, Style::*, Other::*};
+use crate::player::Player;
 
 fn repeat(s: &mut String, c1: char, c2: &str, n: u16) {
     *s = s.replace(c1, c2.repeat(n.into()).as_str());
 }
 
-struct Interact {
-    description: String,
-    action: Box<dyn Fn() -> ()>,
+pub struct Interact {
+    pub description: String,
+    pub action: Box<dyn Fn(*mut i8, &Player, &Map) -> ()>,
+}
+impl Default for Interact {
+    fn default() -> Self {
+        Self {
+            description: String::from("Default action"),
+            action: Box::new(|w,p,m| ())
+        }
+    }
 }
 
 // #[derive(Debug)]
 pub struct Map{
     map: Vec<String>,
-    interacts: Vec<Interact>,
+    interacts: HashMap<u8, Interact>,
 }
 
 impl Map {
@@ -33,7 +44,7 @@ impl Map {
                       l9.to_string(),
                       l10.to_string(),
                       l11.to_string()],
-            interacts: Vec::new(),
+            interacts: HashMap::new(),
         }
     }
 
@@ -74,10 +85,23 @@ impl Map {
                 print!("{}{line}", Goto(h*i as u16+y+j, x));
             }
         }
-        // if let Some(p) = player.get_interact() {
-        //     for y in p.0*h+y..p.0*h+y+h {
-        //         print!("{}{}{}{}", Goto(y, p.1*w+x), Blink, "?".repeat(w as usize), NotBlink);
-        //     }
-        // }
+    }
+
+    pub fn set_interact<F>(&mut self, index: u8, description: &str, action: F) -> &mut Self
+    where F: Fn(*mut i8, &Player, &Map) -> () + 'static
+    {
+        self.interacts.insert(
+            index,
+            Interact {
+                description: String::from(description),
+                action: Box::new(action),
+            }
+        );
+
+        self
+    }
+
+    pub fn get_interact(&self, index: u8) -> Option<&Interact> {
+        self.interacts.get(&index)
     }
 }

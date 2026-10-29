@@ -3,7 +3,7 @@ use std::fmt::Display;
 #[allow(dead_code)]
 #[derive(Debug)]
 pub enum Color {
-    Default,
+    DefaultColor,
     Black,
     Red,
     Green,
@@ -25,7 +25,7 @@ pub enum Color {
 impl Display for Color {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Color::Default => write!(f, "\x1b[39m"),
+            Color::DefaultColor => write!(f, "\x1b[39m"),
             Color::Black => write!(f, "\x1b[30m"),
             Color::Red => write!(f, "\x1b[31m"),
             Color::Green => write!(f, "\x1b[32m"),
