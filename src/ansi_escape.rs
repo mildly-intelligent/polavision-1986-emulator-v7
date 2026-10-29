@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 #[allow(dead_code)]
+#[derive(Debug)]
 pub enum Color {
     Default,
     Black,
@@ -47,6 +48,7 @@ impl Display for Color {
 }
 
 #[allow(dead_code)]
+#[derive(Debug)]
 pub enum Style {
     Reset,
     Bold,
@@ -79,6 +81,7 @@ impl Display for Style {
 }
 
 #[allow(dead_code)]
+#[derive(Debug)]
 pub enum Other {
     Home,
     Goto(u16, u16),
