@@ -1,4 +1,4 @@
-use ncurses::{addch, addstr, clear};
+use ncurses::{addch, addstr, clear, getmaxx, getmaxy};
 
 #[allow(unused_imports)]
 use crate::ansi_escape::{Color::*, Style::*, Other::*};
@@ -31,7 +31,10 @@ impl Map {
         Some(*self.0.get(pos.0 as usize)?.as_bytes().get(pos.1 as usize)?)
     }
 
-    pub fn draw(&self, player: &mut crate::player::Player, (x, y, w, h): (u16,u16,u16,u16)) {
+    pub fn draw(&self, win: *mut i8, player: &mut crate::player::Player, (w, h): (u16,u16)) {
+        let x = (getmaxx(win) as u16 - (self.0[0].len() as u16*w))/2;
+        let y = (getmaxy(win) as u16 - (self.0.len() as u16*h))/2;
+
         for (i, line) in self.0.iter().enumerate() {
             let mut line = line.clone();
             repeat(&mut line, ' ', " ", w);
