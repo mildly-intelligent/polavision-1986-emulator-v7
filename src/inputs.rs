@@ -1,6 +1,6 @@
 use ncurses::getch;
 
-use crate::{overlay::Overlay, player::{MoveDir, Player}};
+use crate::{map::Map, overlay::Overlay, player::{MoveDir, Player}};
 
 pub enum Context {
     Map,
@@ -18,14 +18,14 @@ fn do_interact(w: *mut i8, player: &Player) {
     }}
 }
 
-pub fn handle_input(ctx: Context, player: Option<&mut Player>, w: Option<*mut i8>) -> bool {
+pub fn handle_input(ctx: Context, player: Option<&mut Player>, map: Option<&Map>, w: Option<*mut i8>) -> bool {
     let key = getch();
     match ctx {
         Context::Map => match key {
-            65 => player.unwrap().mov(MoveDir::Up),
-            66 => player.unwrap().mov(MoveDir::Down),
-            68 => player.unwrap().mov(MoveDir::Left),
-            67 => player.unwrap().mov(MoveDir::Right),
+            65 => player.unwrap().mov(MoveDir::Up, map.unwrap()),
+            66 => player.unwrap().mov(MoveDir::Down, map.unwrap()),
+            68 => player.unwrap().mov(MoveDir::Left, map.unwrap()),
+            67 => player.unwrap().mov(MoveDir::Right, map.unwrap()),
             10 => do_interact(w.unwrap(), &player.unwrap()),
             _ => (),
         },

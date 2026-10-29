@@ -40,7 +40,6 @@ fn main() {
                            "          ########     #########",);
 
     let mut player = Player {
-        map: &map,
         pos: (4,14),
         interact: None
     };
@@ -53,12 +52,10 @@ fn main() {
     );
     
     loop {
-        // break;
-
-        if inputs::handle_input(inputs::Context::Map, Some(&mut player), Some(w)) { break; }
+        if inputs::handle_input(inputs::Context::Map, Some(&mut player), Some(&map), Some(w)) { break; }
 
         print!("{}{}", Clear, Home);
-        player.get_interact();
+        player.get_interact(&map);
         map.draw(&mut player, world_scale);
         player.draw(world_scale);
         println!();

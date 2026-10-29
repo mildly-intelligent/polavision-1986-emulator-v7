@@ -59,7 +59,7 @@ impl Overlay {
         }
 
         loop {
-            if inputs::handle_input(inputs::Context::Overlay, None, None) { break; }
+            if inputs::handle_input(inputs::Context::Overlay, None, None, None) { break; }
         }
     }
 }
