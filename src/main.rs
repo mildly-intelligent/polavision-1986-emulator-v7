@@ -3,6 +3,7 @@ mod ansi_escape;
 mod player;
 mod map;
 mod overlay;
+mod inputs;
 
 use std::{thread::sleep, time::Duration};
 
@@ -15,19 +16,9 @@ use map::Map;
 
 use crate::overlay::*;
 
-const TEXT: &str = "THIS IS A REALLY COOL TEST EXAMPLE ALSO FUCK YOU DERMOTT";
-
 // use crate::image::{TEXT, draw_image};
 
 const SCALE: (u16,u16) = (5,3);
-
-fn do_interact(w: *mut i8, player: &Player) {
-    if let Some(i) = player.interact { match i {
-        b'0' => Overlay::print_new(w, TEXT),
-        b'1' => Overlay::print_new(w, TEXT),
-        _ => ()
-    }}
-}
 
 fn main() {
     let w = initscr();
@@ -64,14 +55,7 @@ fn main() {
     loop {
         // break;
 
-        match getch() {
-            65 => player.mov(MoveDir::Up),
-            66 => player.mov(MoveDir::Down),
-            68 => player.mov(MoveDir::Left),
-            67 => player.mov(MoveDir::Right),
-            10 => do_interact(w, &player),
-            _ => (),
-        }
+        if inputs::handle_input(inputs::Context::Map, Some(&mut player), Some(w)) { break; }
 
         print!("{}{}", Clear, Home);
         player.get_interact();

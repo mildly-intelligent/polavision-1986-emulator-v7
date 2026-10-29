@@ -5,6 +5,7 @@ use regex::Regex;
 
 #[allow(unused_imports)]
 use crate::ansi_escape::{Color::*, Style::*, Other::*};
+use crate::inputs;
 
 pub struct Overlay {
     x: u16,
@@ -58,10 +59,7 @@ impl Overlay {
         }
 
         loop {
-            match getch() {
-                10 => break,
-                _ => ()
-            }
+            if inputs::handle_input(inputs::Context::Overlay, None, None) { break; }
         }
     }
 }
