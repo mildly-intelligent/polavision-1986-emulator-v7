@@ -22,10 +22,10 @@ impl Player {
         let pos_old = self.pos.clone();
         let c_old = map.at(self.pos).unwrap();
         self.pos = self.get(dir);
-        if self.pos.0 as usize >= map.0.len() {
+        if self.pos.0 as usize >= map.rows() {
             self.pos = pos_old;
             return;
-        } else if self.pos.1 as usize >= map.0[self.pos.0 as usize].len() {
+        } else if self.pos.1 as usize >= map.cols() {
             self.pos = pos_old;
             return;
         }
@@ -50,8 +50,8 @@ impl Player {
     }
 
     pub fn draw(&self, win: *mut i8, map: &Map, (w, h): (u16,u16)) {
-        let x = (getmaxx(win) as u16 - (map.0[0].len() as u16*w))/2;
-        let y = (getmaxy(win) as u16 - (map.0.len() as u16*h))/2;
+        let x = (getmaxx(win) as u16 - (map.cols() as u16*w))/2;
+        let y = (getmaxy(win) as u16 - (map.rows() as u16*h))/2;
         for i in 0..h {
             print!("{}{}", Goto(self.pos.0*h+y+i, self.pos.1*w+x), "█".repeat(w as usize));
         }

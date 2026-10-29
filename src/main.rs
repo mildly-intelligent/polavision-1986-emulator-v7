@@ -53,5 +53,4 @@ fn main() {
         player.draw(win, &map, SCALE);
         println!();
     }
-    dbg!(player);
 }
