@@ -5,7 +5,7 @@ use regex::Regex;
 
 #[allow(unused_imports)]
 use crate::ansi_escape::{Color::*, Style::*, Other::*};
-use crate::inputs;
+use crate::{State, inputs};
 
 pub struct Overlay {
     x: u16,
@@ -34,7 +34,7 @@ impl Overlay {
         println!("{}     {}     ", Column(self.x-7), " ".repeat(self.w as usize+4));
     }
 
-    pub fn print_new(w: *mut i8, text: &str) {
+    pub fn print_new(state: &State, text: &str) {
         let ansi_regex = Regex::new(r"\x1B\[(?:\d{1,4})?(?:;\d{1,4})*[A-HJm]").unwrap();
 
         let split: Vec<&str> = text.split('\n').collect();
@@ -44,13 +44,13 @@ impl Overlay {
             .unwrap() as u16;
         let height = split.len() as u16;
 
-        let overlay = Self::new(w, width, height);
+        let overlay = Self::new(state.win, width, height);
 
         overlay.draw_border();
-        overlay.print(text);
+        overlay.print(state, text);
     }
 
-    pub fn print(&self, text: &str) {
+    pub fn print(&self, state: &State, text: &str) {
         self.draw_border();
         let lines: Vec<char> = text.chars().collect();
         let lines = lines.chunks(self.w as usize);
@@ -59,7 +59,7 @@ impl Overlay {
         }
 
         loop {
-            if inputs::handle_input(inputs::Context::Overlay, None, None, None) { break; }
+            if inputs::handle_input(state, None, None) { break; }
         }
     }
 }

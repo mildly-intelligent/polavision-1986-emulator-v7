@@ -20,10 +20,21 @@ use crate::overlay::*;
 
 const SCALE: (u16,u16) = (5,3);
 
+struct State {
+    win: *mut i8,
+    current_map: usize,
+    ctx: inputs::Context,
+}
+
 fn main() {
-    let win = initscr();
-    let screen_w = getmaxx(win) as u16;
-    let screen_h = getmaxy(win) as u16;
+    let state = State {
+        win: initscr(),
+        current_map: 0,
+        ctx: inputs::Context::Map,
+    };
+
+    let screen_w = getmaxx(state.win) as u16;
+    let screen_h = getmaxy(state.win) as u16;
     println!("{}\x1b[?25l", Clear);
 
     let maps: [Map; 1] = [
@@ -40,9 +51,8 @@ fn main() {
             "  |           |  #  ---+--     #",
             "  --------+----  #     #       #",
             "          ########     #########",
-        ]).set_interact(b'0', "description", |w,p,m| Overlay::print_new(w, "text")),
+        ]).set_interact(b'0', "description", |state,p,m| Overlay::print_new(state, "text")),
     ];
-    let map = &maps[0];
 
     let mut player = Player {
         pos: (4,14),
@@ -50,12 +60,14 @@ fn main() {
     };
     
     loop {
-        if inputs::handle_input(inputs::Context::Map, Some(&mut player), Some(&map), Some(win)) { break; }
+        let map = &maps[state.current_map];
+
+        if inputs::handle_input(&state, Some(&mut player), Some(&map)) { break; }
 
         print!("{}{}", Clear, Home);
         player.get_interact(&map);
-        map.draw(win, &mut player, SCALE);
-        player.draw(win, &map, SCALE);
+        map.draw(state.win, &mut player, SCALE);
+        player.draw(state.win, &map, SCALE);
         println!();
     }
 }
