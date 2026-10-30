@@ -59,7 +59,7 @@ impl Overlay {
         }
 
         loop {
-            if inputs::handle_input(state, None, None) { break; }
+            if inputs::handle_input(getch(), state, None, None) { break; }
         }
     }
 }

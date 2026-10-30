@@ -1,3 +1,5 @@
+use std::io::Write;
+
 use ncurses::getch;
 
 use crate::{State, map::Map, overlay::Overlay, player::{MoveDir, Player}};
@@ -23,8 +25,7 @@ fn do_interact(state: &State, player: &Player, map: &Map) {
     // }}
 }
 
-pub fn handle_input(state: &State, player: Option<&mut Player>, map: Option<&Map>) -> bool {
-    let key = getch();
+pub fn handle_input(key: i32, state: &State, player: Option<&mut Player>, map: Option<&Map>) -> bool {
     match state.ctx {
         Context::Map => match key {
             65 => player.unwrap().mov(MoveDir::Up, map.unwrap()),
@@ -32,6 +33,7 @@ pub fn handle_input(state: &State, player: Option<&mut Player>, map: Option<&Map
             68 => player.unwrap().mov(MoveDir::Left, map.unwrap()),
             67 => player.unwrap().mov(MoveDir::Right, map.unwrap()),
             10 => do_interact(state, &player.unwrap(), &map.unwrap()),
+            20 => return true,
             _ => (),
         },
         Context::Overlay => match key {
