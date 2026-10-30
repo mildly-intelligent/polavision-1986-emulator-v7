@@ -1,28 +1,16 @@
+mod interact;
+
 use std::collections::HashMap;
 
 use ncurses::{addch, addstr, clear, getmaxx, getmaxy};
 
 #[allow(unused_imports)]
 use crate::ansi_escape::{Color::*, Style::*, Other::*};
-use crate::{State, overlay::Overlay, player::Player};
+use crate::{SCALE, State, overlay::Overlay, player::Player};
+use self::interact::Interact;
 
 fn repeat(s: &mut String, c1: char, c2: &str, n: u16) {
     *s = s.replace(c1, c2.repeat(n.into()).as_str());
-}
-
-pub type InteractAction = dyn Fn(&mut State, &mut Player, &Map) -> ();
-
-pub struct Interact {
-    pub description: String,
-    pub action: Box<InteractAction>,
-}
-impl Default for Interact {
-    fn default() -> Self {
-        Self {
-            description: String::from("Default action"),
-            action: Box::new(|w,p,m| ())
-        }
-    }
 }
 
 // #[derive(Debug)]
@@ -32,7 +20,7 @@ pub struct Map{
 }
 
 impl Map {
-    pub fn new(lines: [&str; 12]) -> Self {
+    pub fn new(lines: [&str; crate::MAP_ROWS]) -> Self {
         Map {
             lines: lines.map(|a| String::from(a)).to_vec(),
             interacts: HashMap::new(),
@@ -46,9 +34,10 @@ impl Map {
         Some(*self.lines.get(pos.0 as usize)?.as_bytes().get(pos.1 as usize)?)
     }
 
-    pub fn draw(&self, win: *mut i8, player: &mut crate::player::Player, (w, h): (u16,u16)) {
-        let x = (getmaxx(win) as u16 - (self.cols() as u16*w))/2;
-        let y = (getmaxy(win) as u16 - (self.rows() as u16*h))/2;
+    pub fn draw(&self, state: &mut State, player: &mut crate::player::Player) {
+        let (w,h) = crate::SCALE;
+        let x = (getmaxx(state.win) as u16 - (self.cols() as u16*w))/2;
+        let y = (getmaxy(state.win) as u16 - (self.rows() as u16*h))/3;
 
         for (i, line) in self.lines.iter().enumerate() {
             let mut line = line.clone();
@@ -60,6 +49,7 @@ impl Map {
 
             if let Some(c) = player.interact {
                 repeat(&mut line, c as char, "*", w);
+                self.get_interact(c).unwrap().draw(state);
             }
 
             for n in '0'..='9' {
@@ -78,13 +68,14 @@ impl Map {
         }
     }
 
-    pub fn set_interact<F>(self, index: u8, description: &str, action: F) -> Self
+    pub fn set_interact<F>(self, index: u8, name: Option<&str>, description: &str, action: F) -> Self
     where F: Fn(&mut State, &mut Player, &Map) -> () + 'static
     {
         let mut new = self;
         new.interacts.insert(
             index,
             Interact {
+                name: name.and_then(|a| Some(format!("{}{}{}", Bold, a, NotBold))),
                 description: String::from(description),
                 action: Box::new(action),
             }

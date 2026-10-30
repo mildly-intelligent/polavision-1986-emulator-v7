@@ -19,6 +19,7 @@ use crate::overlay::*;
 // use crate::image::{TEXT, draw_image};
 
 const SCALE: (u16,u16) = (5,3);
+const MAP_ROWS: usize = 12;
 
 struct State {
     win: *mut i8,
@@ -52,23 +53,23 @@ fn main() {
             "  --------+----  #     #       #",
             "          ########     #########",
         ])
-            .set_interact(b'0', "description", |state,p,m| Overlay::print_new(state, "text"))
-            .set_interact(b'3', "description", |state,p,m| {state.current_map = 1; p.pos = (10,17)}),
+            .set_interact(b'0', Some("Window"), "Look out window", |state,p,m| Overlay::print_new(state, "text"))
+            .set_interact(b'3', Some("Door"), "Go to room", |state,p,m| {state.current_map = 1; p.pos = (10,17)}),
         Map::new([
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "              ---0---           ",
+            "          ---------------       ",
+            "          |             |       ",
+            "          |             |       ",
+            "          |             |       ",
+            "          |             |       ",
+            "          |             |       ",
+            "          |             |       ",
+            "          |             |       ",
+            "          |             |       ",
+            "          |             |       ",
+            "          |             |       ",
+            "          ------000------       ",
         ])
-            .set_interact(b'0', "description", |state,p,m| {state.current_map = 0; p.pos = (1,17)}),
+            .set_interact(b'0', Some("Door"), "Go back to room", |state,p,m| {state.current_map = 0; p.pos = (1,17);}),
     ];
 
     let mut player = Player {
@@ -85,8 +86,9 @@ fn main() {
 
         print!("{}{}", Clear, Home);
         player.get_interact(&map);
-        map.draw(state.win, &mut player, SCALE);
-        player.draw(state.win, &map, SCALE);
+        map.draw(&mut state, &mut player);
+        player.draw(state.win, &map);
+
         println!();
     }
 }

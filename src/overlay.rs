@@ -1,4 +1,4 @@
-use std::{thread::sleep, time::Duration};
+use std::{sync::LazyLock, thread::sleep, time::Duration};
 
 use ncurses::{getch, getmaxx, getmaxy};
 use regex::Regex;
@@ -6,6 +6,9 @@ use regex::Regex;
 #[allow(unused_imports)]
 use crate::ansi_escape::{Color::*, Style::*, Other::*};
 use crate::{State, inputs};
+
+pub const ANSI_REGEX: LazyLock<Regex> = 
+    LazyLock::new(|| Regex::new(r"\x1B\[(?:\d{1,4})?(?:;\d{1,4})*[A-HJm]").unwrap());
 
 pub struct Overlay {
     x: u16,
@@ -35,11 +38,9 @@ impl Overlay {
     }
 
     pub fn print_new(state: &mut State, text: &str) {
-        let ansi_regex = Regex::new(r"\x1B\[(?:\d{1,4})?(?:;\d{1,4})*[A-HJm]").unwrap();
-
         let split: Vec<&str> = text.split('\n').collect();
         let width = split.iter()
-            .map(|a| ansi_regex.replace_all(a, "").chars().count())
+            .map(|a| ANSI_REGEX.replace_all(a, "").chars().count())
             .max()
             .unwrap() as u16;
         let height = split.len() as u16;
@@ -58,8 +59,9 @@ impl Overlay {
             println!("{}{}", Goto(self.y+i as u16, self.x), line.iter().collect::<String>())
         }
 
+        state.ctx = inputs::Context::Overlay;
         loop {
-            if inputs::handle_input(state, None, None) { break; }
+            if inputs::handle_input(state, None, None) { state.ctx = inputs::Context::Map; break; }
         }
     }
 }

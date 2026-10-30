@@ -49,9 +49,10 @@ impl Player {
         }
     }
 
-    pub fn draw(&self, win: *mut i8, map: &Map, (w, h): (u16,u16)) {
+    pub fn draw(&self, win: *mut i8, map: &Map) {
+        let (w,h) = crate::SCALE;
         let x = (getmaxx(win) as u16 - (map.cols() as u16*w))/2;
-        let y = (getmaxy(win) as u16 - (map.rows() as u16*h))/2;
+        let y = (getmaxy(win) as u16 - (map.rows() as u16*h))/3;
         for i in 0..h {
             print!("{}{}", Goto(self.pos.0*h+y+i, self.pos.1*w+x), "█".repeat(w as usize));
         }

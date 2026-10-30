@@ -35,7 +35,10 @@ pub fn handle_input(state: &mut State, player: Option<&mut Player>, map: Option<
             _ => (),
         },
         Context::Overlay => match key {
-            10 => return true,
+            10 => {
+                state.ctx = Context::Map;
+                return true
+            },
             _ => ()
         },
         Context::Pause => todo!(),
