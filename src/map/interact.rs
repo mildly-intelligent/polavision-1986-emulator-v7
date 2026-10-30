@@ -1,14 +1,11 @@
+use crate::utils::*;
+use crate::pad;
+
 use ncurses::{getmaxx, getmaxy};
 
-use crate::{State, ansi_escape::Other::*, map::Map, player::Player};
+use crate::{State, utils::ansi_escape::Other::*, map::Map, player::Player};
 
 pub type InteractAction = dyn Fn(&mut State, &mut Player, &Map) -> ();
-
-fn pad(s: &String, n: usize) -> String {
-    let len = crate::overlay::ANSI_REGEX.replace_all(s, "").len();
-    let pad = " ".repeat((n - len)/2);
-    format!("{}{s}{}", pad, pad)
-}
 
 pub struct Interact {
     pub name: Option<String>,
@@ -34,9 +31,9 @@ impl Interact {
         let w = scrw * 1/8;
         println!("{}{}", Goto(state_y+1, x), "~".repeat(w as usize));
         if let Some(name) = &self.name {
-            println!("{}{}", Goto(y-1, x), pad(name, w as usize))
+            println!("{}{}", Goto(y-1, x), pad!(name, w as usize))
         }
-        println!("{}{}", Goto(y+1, x), pad(&self.description, w as usize));
+        println!("{}{}", Goto(y+1, x), pad!(&self.description, w as usize));
         println!("{}{}", Goto(scrh as u16 - 1, x), "~".repeat(w as usize));
     }
 }

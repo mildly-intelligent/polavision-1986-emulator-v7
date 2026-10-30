@@ -5,13 +5,11 @@ use std::collections::HashMap;
 use ncurses::{addch, addstr, clear, getmaxx, getmaxy};
 
 #[allow(unused_imports)]
-use crate::ansi_escape::{Color::*, Style::*, Other::*};
-use crate::{SCALE, State, overlay::Overlay, player::Player};
-use self::interact::Interact;
+pub(self) use crate::utils::ansi_escape::{Color::*, Style::*, Other::*};
+pub(self) use crate::{SCALE, State, overlay::Overlay, player::Player};
+pub(self) use self::interact::Interact;
 
-fn repeat(s: &mut String, c1: char, c2: &str, n: u16) {
-    *s = s.replace(c1, c2.repeat(n.into()).as_str());
-}
+use crate::utils::*;
 
 // #[derive(Debug)]
 pub struct Map{
@@ -41,22 +39,22 @@ impl Map {
 
         for (i, line) in self.lines.iter().enumerate() {
             let mut line = line.clone();
-            repeat(&mut line, ' ', " ", w);
-            repeat(&mut line, '-', "-", w);
-            repeat(&mut line, '|', "|", w);
-            repeat(&mut line, '+', "+", w);
-            repeat(&mut line, '#', "#", w);
+            repeat_char(&mut line, ' ', " ", w);
+            repeat_char(&mut line, '-', "-", w);
+            repeat_char(&mut line, '|', "|", w);
+            repeat_char(&mut line, '+', "+", w);
+            repeat_char(&mut line, '#', "#", w);
 
             if let Some(c) = player.interact {
-                repeat(&mut line, c as char, "*", w);
+                repeat_char(&mut line, c as char, "*", w);
                 self.get_interact(c).unwrap().draw(state);
             }
 
             for n in '0'..='9' {
-                repeat(&mut line, n, "?", w);
+                repeat_char(&mut line, n, "?", w);
             }
             for n in 'A'..='F' {
-                repeat(&mut line, n, "?", w);
+                repeat_char(&mut line, n, "?", w);
             }
 
             // Gang what the fuck is this line 😔✌️

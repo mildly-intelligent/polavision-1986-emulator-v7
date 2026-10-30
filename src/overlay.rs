@@ -1,14 +1,13 @@
+use crate::utils::*;
+
 use std::{sync::LazyLock, thread::sleep, time::Duration};
 
 use ncurses::{getch, getmaxx, getmaxy};
 use regex::Regex;
 
 #[allow(unused_imports)]
-use crate::ansi_escape::{Color::*, Style::*, Other::*};
+use crate::utils::ansi_escape::{Color::*, Style::*, Other::*};
 use crate::{State, inputs};
-
-pub const ANSI_REGEX: LazyLock<Regex> = 
-    LazyLock::new(|| Regex::new(r"\x1B\[(?:\d{1,4})?(?:;\d{1,4})*[A-HJm]").unwrap());
 
 pub struct Overlay {
     x: u16,
@@ -65,21 +64,3 @@ impl Overlay {
         }
     }
 }
-
-// pub fn draw_image(w: *mut i8, text: &str) {
-//     let ansi_regex = Regex::new(r"\x1B\[(?:\d{1,4})?(?:;\d{1,4})*[A-HJm]").unwrap();
-
-//     let screen_w = getmaxx(w) as usize;
-//     let screen_h = getmaxy(w) as usize;
-
-//     let x = (screen_w - width) as u16 / 2;
-//     let y = (screen_h - height) as u16 / 2;
-//     for (i, line) in text.split('\n').enumerate() {
-//         print!("{}", Goto(y+i as u16, x));
-//         for ch in line.split("") {
-//             print!("{ch}");
-//             sleep(Duration::from_millis(1));
-//         }
-//     }
-//     sleep(Duration::from_secs(5));
-// }

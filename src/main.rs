@@ -1,22 +1,21 @@
 #![allow(unused)]
-mod ansi_escape;
 mod player;
 mod map;
 mod overlay;
 mod inputs;
+#[macro_use]
+mod utils;
 
 use std::{thread::sleep, time::Duration};
 
 use ncurses::{clear, curs_set, endwin, getch, getmaxx, getmaxy, getmaxyx, initscr, refresh};
 
 #[allow(unused_imports)]
-use ansi_escape::{Color::*, Style::*, Other::*};
+use utils::ansi_escape::{Color::*, Style::*, Other::*};
 use player::{Player, MoveDir};
 use map::Map;
 
 use crate::overlay::*;
-
-// use crate::image::{TEXT, draw_image};
 
 const SCALE: (u16,u16) = (5,3);
 const MAP_ROWS: usize = 12;
