@@ -11,7 +11,7 @@ pub enum Context {
 
 const TEXT: &str = "THIS IS A REALLY COOL TEST EXAMPLE ALSO FUCK YOU DERMOTT";
 
-fn do_interact(state: &State, player: &Player, map: &Map) {
+fn do_interact(state: &mut State, player: &mut Player, map: &Map) {
     if let Some(i) = player.interact {
         (map.get_interact(i).unwrap().action)(state, player, map)
     }
@@ -23,7 +23,7 @@ fn do_interact(state: &State, player: &Player, map: &Map) {
     // }}
 }
 
-pub fn handle_input(state: &State, player: Option<&mut Player>, map: Option<&Map>) -> bool {
+pub fn handle_input(state: &mut State, player: Option<&mut Player>, map: Option<&Map>) -> bool {
     let key = getch();
     match state.ctx {
         Context::Map => match key {
@@ -31,7 +31,7 @@ pub fn handle_input(state: &State, player: Option<&mut Player>, map: Option<&Map
             66 => player.unwrap().mov(MoveDir::Down, map.unwrap()),
             68 => player.unwrap().mov(MoveDir::Left, map.unwrap()),
             67 => player.unwrap().mov(MoveDir::Right, map.unwrap()),
-            10 => do_interact(state, &player.unwrap(), &map.unwrap()),
+            10 => do_interact(state, player.unwrap(), &map.unwrap()),
             _ => (),
         },
         Context::Overlay => match key {

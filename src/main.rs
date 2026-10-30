@@ -27,7 +27,7 @@ struct State {
 }
 
 fn main() {
-    let state = State {
+    let mut state = State {
         win: initscr(),
         current_map: 0,
         ctx: inputs::Context::Map,
@@ -37,7 +37,7 @@ fn main() {
     let screen_h = getmaxy(state.win) as u16;
     println!("{}\x1b[?25l", Clear);
 
-    let maps: [Map; 1] = [
+    let maps: [Map; 2] = [
         Map::new([
             "              ---3---           ",
             "        ---00--     ------      ",
@@ -51,7 +51,24 @@ fn main() {
             "  |           |  #  ---+--     #",
             "  --------+----  #     #       #",
             "          ########     #########",
-        ]).set_interact(b'0', "description", |state,p,m| Overlay::print_new(state, "text")),
+        ])
+            .set_interact(b'0', "description", |state,p,m| Overlay::print_new(state, "text"))
+            .set_interact(b'3', "description", |state,p,m| {state.current_map = 1; p.pos = (10,17)}),
+        Map::new([
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "              ---0---           ",
+        ])
+            .set_interact(b'0', "description", |state,p,m| {state.current_map = 0; p.pos = (1,17)}),
     ];
 
     let mut player = Player {
@@ -59,10 +76,12 @@ fn main() {
         interact: None
     };
     
-    loop {
-        let map = &maps[state.current_map];
+    let mut map = &maps[state.current_map];
 
-        if inputs::handle_input(&state, Some(&mut player), Some(&map)) { break; }
+    loop {
+        if inputs::handle_input(&mut state, Some(&mut player), Some(&map)) { break; }
+        
+        map = &maps[state.current_map];
 
         print!("{}{}", Clear, Home);
         player.get_interact(&map);

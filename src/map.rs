@@ -10,7 +10,7 @@ fn repeat(s: &mut String, c1: char, c2: &str, n: u16) {
     *s = s.replace(c1, c2.repeat(n.into()).as_str());
 }
 
-pub type InteractAction = dyn Fn(&State, &Player, &Map) -> ();
+pub type InteractAction = dyn Fn(&mut State, &mut Player, &Map) -> ();
 
 pub struct Interact {
     pub description: String,
@@ -79,7 +79,7 @@ impl Map {
     }
 
     pub fn set_interact<F>(self, index: u8, description: &str, action: F) -> Self
-    where F: Fn(&State, &Player, &Map) -> () + 'static
+    where F: Fn(&mut State, &mut Player, &Map) -> () + 'static
     {
         let mut new = self;
         new.interacts.insert(

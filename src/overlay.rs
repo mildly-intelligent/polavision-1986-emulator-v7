@@ -34,7 +34,7 @@ impl Overlay {
         println!("{}     {}     ", Column(self.x-7), " ".repeat(self.w as usize+4));
     }
 
-    pub fn print_new(state: &State, text: &str) {
+    pub fn print_new(state: &mut State, text: &str) {
         let ansi_regex = Regex::new(r"\x1B\[(?:\d{1,4})?(?:;\d{1,4})*[A-HJm]").unwrap();
 
         let split: Vec<&str> = text.split('\n').collect();
@@ -50,7 +50,7 @@ impl Overlay {
         overlay.print(state, text);
     }
 
-    pub fn print(&self, state: &State, text: &str) {
+    pub fn print(&self, state: &mut State, text: &str) {
         self.draw_border();
         let lines: Vec<char> = text.chars().collect();
         let lines = lines.chunks(self.w as usize);
