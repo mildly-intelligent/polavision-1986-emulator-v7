@@ -4,15 +4,17 @@ use ncurses::{addch, addstr, clear, getmaxx, getmaxy};
 
 #[allow(unused_imports)]
 use crate::ansi_escape::{Color::*, Style::*, Other::*};
-use crate::player::Player;
+use crate::{overlay::Overlay, player::Player};
 
 fn repeat(s: &mut String, c1: char, c2: &str, n: u16) {
     *s = s.replace(c1, c2.repeat(n.into()).as_str());
 }
 
+pub type InteractAction = Box<dyn Fn(*mut i8, &Player, &Map)>;
+
 pub struct Interact {
     pub description: String,
-    pub action: Box<dyn Fn(*mut i8, &Player, &Map) -> ()>,
+    pub action: InteractAction,
 }
 impl Default for Interact {
     fn default() -> Self {
@@ -30,20 +32,9 @@ pub struct Map{
 }
 
 impl Map {
-    pub fn new(l0:&str,l1:&str,l2:&str,l3:&str,l4:&str,l5:&str,l6:&str,l7:&str,l8:&str,l9:&str,l10:&str,l11:&str) -> Self {
+    pub fn new(lines: [&str; 12]) -> Self {
         Map { 
-            map: vec![l0.to_string(),
-                      l1.to_string(),
-                      l2.to_string(),
-                      l3.to_string(),
-                      l4.to_string(),
-                      l5.to_string(),
-                      l6.to_string(),
-                      l7.to_string(),
-                      l8.to_string(),
-                      l9.to_string(),
-                      l10.to_string(),
-                      l11.to_string()],
+            map: lines.map(|l| String::from(l)).to_vec(),
             interacts: HashMap::new(),
         }
     }
@@ -87,10 +78,11 @@ impl Map {
         }
     }
 
-    pub fn set_interact<F>(&mut self, index: u8, description: &str, action: F) -> &mut Self
+    pub fn set_interact<F>(self, index: u8, description: &str, action: F) -> Self
     where F: Fn(*mut i8, &Player, &Map) -> () + 'static
     {
-        self.interacts.insert(
+        let mut new = self;
+        new.interacts.insert(
             index,
             Interact {
                 description: String::from(description),
@@ -98,7 +90,7 @@ impl Map {
             }
         );
 
-        self
+        new
     }
 
     pub fn get_interact(&self, index: u8) -> Option<&Interact> {
