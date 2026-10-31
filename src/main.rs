@@ -1,32 +1,16 @@
-#![allow(unused)]
-mod player;
+mod inputs;
 mod map;
 mod overlay;
-mod inputs;
-#[macro_use]
+mod player;
 mod utils;
 
-use std::{io::Write, thread::sleep, time::Duration};
+use crate::utils::*;
+use {map::Map, overlay::Overlay, player::Player};
 
-use ncurses::{cbreak, clear, curs_set, delscreen, endwin, filter, getch, getmaxx, getmaxy, getmaxyx, initscr, keyname, keypad, newscr, noecho, refresh};
-
-#[allow(unused_imports)]
-use utils::ansi_escape::{Color::*, Style::*, Other::*};
-use player::{Player, MoveDir};
-use map::Map;
-
-use crate::overlay::*;
+use ncurses::{cbreak, getch, initscr, keypad, noecho};
 
 const SCALE: (u16,u16) = (5,3);
 const MAP_ROWS: usize = 12;
-
-fn wait_key() -> i32 {
-    let mut key = -1;
-    while key == -1 {
-        key = getch();
-    }
-    key
-}
 
 struct State {
     win: *mut i8,
@@ -39,7 +23,7 @@ fn ellipsis(ticks: usize) {
     for t in 0..ticks {
         let t = t%4;
         println!("{}{}", Restore, ".".repeat(t) + &" ".repeat(3-t));
-        sleep(Duration::from_millis(250));
+        sleep(250);
     }
     println!("{}...", Restore);
 }
@@ -58,11 +42,11 @@ fn startup_sequence() {
     println!("{}", info("Loading program ROM"));
     ellipsis(8);
     println!("{}", warning("Map data may have been corrupted or lost when loading"));
-    sleep(Duration::from_millis(250));
+    sleep(250);
     println!("{}", debug("Failed to write over data in ROM at address $3000-$39FF (map data)"));
-    sleep(Duration::from_millis(250));
+    sleep(250);
     println!("{}", debug("Possible faulty initial RAM decay pattern"));
-    sleep(Duration::from_millis(250));
+    sleep(250);
     println!("{}", info("Initializing virtual display"));
     ellipsis(6);
     println!("{}", info("Initializing virtual controls panel"));
@@ -76,7 +60,7 @@ fn startup_sequence() {
     print!("{}{}", debug("3000"), Save);
     for _ in 0..3000 {
         println!("{}3000{}", Restore, Save);
-        sleep(Duration::from_micros(50))
+        sleep_micros(50);
     }
 }
 
@@ -100,7 +84,6 @@ fn main() {
     keypad(state.win, true);
 
     let screen_w = getmaxx(state.win) as u16;
-    let screen_h = getmaxy(state.win) as u16;
 
     let maps: [Map; 2] = [
         Map::new([
@@ -117,8 +100,8 @@ fn main() {
             "  --------+----  #     #       #",
             "          ########     #########",
         ])
-            .set_interact(b'0', Some("Window"), "Look out window", |state,p,m| Overlay::print_new(state, "text"))
-            .set_interact(b'3', Some("Door"), "Go to room", |state,p,m| {state.current_map = 1; p.pos = (10,17)}),
+            .set_interact(b'0', Some("Window"), "Look out window", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, "text")})
+            .set_interact(b'3', Some("Door"), "Go to room", |state,p,_m| {state.current_map = 1; p.pos = (10,17)}),
         Map::new([
             "          ---------------       ",
             "          |             |       ",
@@ -133,7 +116,7 @@ fn main() {
             "          |             |       ",
             "          ------000------       ",
         ])
-            .set_interact(b'0', Some("Door"), "Go back to room", |state,p,m| {state.current_map = 0; p.pos = (1,17);}),
+            .set_interact(b'0', Some("Door"), "Go back to room", |state,p,_m| {state.current_map = 0; p.pos = (1,17);}),
     ];
 
     let mut player = Player {
@@ -144,18 +127,17 @@ fn main() {
     if !cfg!(debug_assertions) { startup_sequence() }
 
     println!("{}{}\x1b[?25l", Clear, Home);
-    let title_card = overlay::Overlay::from(&state, "  __ __       _____    _____     _____      __   __   
+    let title_card = overlay::Overlay::from(&state, &format!("  __ __       _____    _____     _____      __   __   
  /_/\\__/\\   /\\_____\\  /\\ __/\\   ) ___ (    /_/\\ /\\_\\  
  ) ) ) ) ) ( (_____/  ) )__\\/  / /\\_/\\ \\   ) ) \\ ( (  
 /_/ /_/_/   \\ \\__\\   / / /    / /_/ (_\\ \\ /_/   \\ \\_\\ 
 \\ \\ \\ \\ \\   / /__/_  \\ \\ \\_   \\ \\ )_/ / / \\ \\ \\   / / 
  )_) ) \\ \\ ( (_____\\  ) )__/\\  \\ \\/_\\/ /   )_) \\ (_(  
- \\_\\/ \\_\\/  \\/_____/  \\/___\\/   )_____(    \\_\\/ \\/_/  
-
-               Erimita Interactive LLC.
-                      c. 1986");
+ \\_\\/ \\_\\/  \\/_____/  \\/___\\/   )_____(    \\_\\/ \\/_/  \n\n{}\n{}",
+        pad(&String::from("Erimita Interactive LLC."), ' ', 54),
+        pad(&String::from("c. 1986"), ' ', 54)));
     while !inputs::handle_input(getch(), &mut state, None, None) {
-        title_card.draw(&mut state);
+        title_card.draw();
         println!("{}{}{}Insert 5¢ to begin{}", Down(3), Column((screen_w-18)/2), Blink, NotBlink);
     }
     let mut map = &maps[state.current_map];

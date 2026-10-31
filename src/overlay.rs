@@ -1,13 +1,7 @@
 use crate::utils::*;
+use crate::State;
 
-use std::{sync::LazyLock, thread::sleep, time::Duration};
-
-use ncurses::{getch, getmaxx, getmaxy};
 use regex::Regex;
-
-#[allow(unused_imports)]
-use crate::utils::ansi_escape::{Color::*, Style::*, Other::*};
-use crate::{State, inputs};
 
 pub struct Overlay {
     x: u16,
@@ -70,10 +64,10 @@ impl Overlay {
 
         let overlay = Self::new(state.win, width, height);
 
-        overlay.print(state, text);
+        overlay.print(text);
     }
 
-    pub fn print(&self, state: &mut State, text: &str) {
+    pub fn print(&self, text: &str) {
         self.draw_border();
         // let lines: Vec<char> = text.chars().collect();
         // let lines = lines.chunks(self.w as usize);
@@ -84,5 +78,5 @@ impl Overlay {
         }
     }
 
-    pub fn draw(&self, state: &mut State) { self.print(state, self.text.as_ref().unwrap().as_str()) }
+    pub fn draw(&self) { self.print(self.text.as_ref().unwrap().as_str()) }
 }

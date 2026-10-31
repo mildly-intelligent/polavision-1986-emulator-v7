@@ -1,7 +1,5 @@
-use ncurses::{getmaxx, getmaxy};
+use crate::utils::*;
 
-#[allow(unused_imports)]
-use crate::utils::ansi_escape::{Color::*, Style::*, Other::*};
 use crate::{State, map::Map};
 
 #[allow(dead_code)]

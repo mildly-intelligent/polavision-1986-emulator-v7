@@ -1,15 +1,10 @@
 mod interact;
 
-use std::collections::HashMap;
-
-use ncurses::{addch, addstr, clear, getmaxx, getmaxy};
-
-#[allow(unused_imports)]
-pub(self) use crate::utils::ansi_escape::{Color::*, Style::*, Other::*};
-pub(self) use crate::{SCALE, State, overlay::Overlay, player::Player};
-pub(self) use self::interact::Interact;
-
 use crate::utils::*;
+use crate::{State, player::Player};
+use interact::Interact;
+
+use std::collections::HashMap;
 
 // #[derive(Debug)]
 pub struct Map{

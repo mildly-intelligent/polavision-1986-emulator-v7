@@ -1,10 +1,10 @@
-use std::io::Write;
 
-use ncurses::{KEY_BACKSPACE, KEY_DOWN, KEY_ENTER, KEY_LEFT, KEY_RIGHT, KEY_UP, getch, keyname};
+use crate::{State, map::Map, player::{Player, MoveDir}};
 
-use crate::{State, map::Map, overlay::Overlay, player::{MoveDir, Player}};
+use ncurses::{KEY_BACKSPACE, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_UP};
 
 #[derive(Clone, Copy)]
+#[allow(dead_code)]
 pub enum Context {
     Map,
     Overlay,
@@ -12,18 +12,10 @@ pub enum Context {
     Title,
 }
 
-const TEXT: &str = "THIS IS A REALLY COOL TEST EXAMPLE ALSO FUCK YOU DERMOTT";
-
 fn do_interact(state: &mut State, player: &mut Player, map: &Map) {
     if let Some(i) = player.interact {
         (map.get_interact(i).unwrap().action)(state, player, map)
     }
-
-    // if let Some(i) = player.interact { match i {
-    //     b'0' => Overlay::print_new(w, TEXT),
-    //     b'1' => Overlay::print_new(w, TEXT),
-    //     _ => ()
-    // }}
 }
 
 pub fn handle_input(key: i32, state: &mut State, player: Option<&mut Player>, map: Option<&Map>) -> bool {
