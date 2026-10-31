@@ -90,6 +90,10 @@ pub enum Other {
     Right(u16),
     Left(u16),
     Column(u16),
+    Next(u16),
+    Prev(u16),
+    Save,
+    Restore,
     Clear,
 }
 impl Display for Other {
@@ -101,7 +105,11 @@ impl Display for Other {
             Other::Down(n) => write!(f, "\x1b[{}B", n),
             Other::Right(n) => write!(f, "\x1b[{}C", n),
             Other::Left(n) => write!(f, "\x1b[{}D", n),
+            Other::Next(n) => write!(f, "\x1b[{}E", n),
+            Other::Prev(n) => write!(f, "\x1b[{}F", n),
             Other::Column(n) => write!(f, "\x1b[{}G", n),
+            Other::Save => write!(f, "\x1b[s"),
+            Other::Restore => write!(f, "\x1b[u"),
             Other::Clear => write!(f, "\x1b[2J\x1b[H"),
         }
     }
