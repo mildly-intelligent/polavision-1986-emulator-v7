@@ -7,7 +7,7 @@ mod inputs;
 
 use std::{io::Write, thread::sleep, time::Duration};
 
-use ncurses::{clear, curs_set, delscreen, endwin, filter, getch, getmaxx, getmaxy, getmaxyx, initscr, newscr, refresh};
+use ncurses::{cbreak, clear, curs_set, delscreen, endwin, filter, getch, getmaxx, getmaxy, getmaxyx, initscr, keyname, keypad, newscr, noecho, refresh};
 
 #[allow(unused_imports)]
 use ansi_escape::{Color::*, Style::*, Other::*};
@@ -19,6 +19,14 @@ use crate::overlay::*;
 // use crate::image::{TEXT, draw_image};
 
 const SCALE: (u16,u16) = (5,3);
+
+fn wait_key() -> i32 {
+    let mut key = -1;
+    while key == -1 {
+        key = getch();
+    }
+    key
+}
 
 struct State {
     win: *mut i8,
@@ -81,12 +89,15 @@ fn draw(state: &State, player: &mut Player, map: &Map) {
 }
 
 fn main() {
-    let state = State {
-        // win: newscr(),
+    noecho();
+    cbreak();
+
+    let mut state = State {
         win: initscr(),
         current_map: 0,
-        ctx: inputs::Context::Map,
+        ctx: inputs::Context::Title,
     };
+    keypad(state.win, true);
 
     let screen_w = getmaxx(state.win) as u16;
     let screen_h = getmaxy(state.win) as u16;
@@ -113,12 +124,28 @@ fn main() {
         interact: None
     };
     
-    startup_sequence();
+    if !cfg!(debug_assertions) { startup_sequence() }
+
     println!("{}{}\x1b[?25l", Clear, Home);
-    loop {        
-        let map = &maps[state.current_map];
-        // WHY THE FUCKING FUCK DOES THE GETCH FUNCTION CLEAR THE SCREEN OMFG
-        if inputs::handle_input(getch(), &state, Some(&mut player), Some(&map)) { break; }
+    let title_card = overlay::Overlay::from(&state, "  __ __       _____    _____     _____      __   __   
+ /_/\\__/\\   /\\_____\\  /\\ __/\\   ) ___ (    /_/\\ /\\_\\  
+ ) ) ) ) ) ( (_____/  ) )__\\/  / /\\_/\\ \\   ) ) \\ ( (  
+/_/ /_/_/   \\ \\__\\   / / /    / /_/ (_\\ \\ /_/   \\ \\_\\ 
+\\ \\ \\ \\ \\   / /__/_  \\ \\ \\_   \\ \\ )_/ / / \\ \\ \\   / / 
+ )_) ) \\ \\ ( (_____\\  ) )__/\\  \\ \\/_\\/ /   )_) \\ (_(  
+ \\_\\/ \\_\\/  \\/_____/  \\/___\\/   )_____(    \\_\\/ \\/_/  
+
+               Erimita Interactive LLC.
+                      c. 1986");
+    while !inputs::handle_input(getch(), &state, None, None) {
+        title_card.draw(&state);
+        println!("{}{}{}Insert 5¢ to begin{}", Down(3), Column((screen_w-18)/2), Blink, NotBlink);
+    }
+    draw(&state, &mut player, &maps[state.current_map]);
+    state.ctx = inputs::Context::Map;
+    let mut map = &maps[state.current_map];
+    while !inputs::handle_input(getch(), &state, Some(&mut player), Some(&map)) {        
+        map = &maps[state.current_map];
         draw(&state, &mut player, &map);
     }
 }

@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use ncurses::getch;
+use ncurses::{KEY_BACKSPACE, KEY_DOWN, KEY_ENTER, KEY_LEFT, KEY_RIGHT, KEY_UP, getch, keyname};
 
 use crate::{State, map::Map, overlay::Overlay, player::{MoveDir, Player}};
 
@@ -9,6 +9,7 @@ pub enum Context {
     Map,
     Overlay,
     Pause,
+    Title,
 }
 
 const TEXT: &str = "THIS IS A REALLY COOL TEST EXAMPLE ALSO FUCK YOU DERMOTT";
@@ -28,19 +29,23 @@ fn do_interact(state: &State, player: &Player, map: &Map) {
 pub fn handle_input(key: i32, state: &State, player: Option<&mut Player>, map: Option<&Map>) -> bool {
     match state.ctx {
         Context::Map => match key {
-            65 => player.unwrap().mov(MoveDir::Up, map.unwrap()),
-            66 => player.unwrap().mov(MoveDir::Down, map.unwrap()),
-            68 => player.unwrap().mov(MoveDir::Left, map.unwrap()),
-            67 => player.unwrap().mov(MoveDir::Right, map.unwrap()),
+            KEY_UP => player.unwrap().mov(MoveDir::Up, map.unwrap()),
+            KEY_DOWN => player.unwrap().mov(MoveDir::Down, map.unwrap()),
+            KEY_LEFT => player.unwrap().mov(MoveDir::Left, map.unwrap()),
+            KEY_RIGHT => player.unwrap().mov(MoveDir::Right, map.unwrap()),
             10 => do_interact(state, &player.unwrap(), &map.unwrap()),
-            20 => return true,
+            KEY_BACKSPACE => return true,
             _ => (),
         },
         Context::Overlay => match key {
             10 => return true,
-            _ => ()
+            _ => (),
         },
         Context::Pause => todo!(),
+        Context::Title => match key {
+            10 => return true,
+            _ => (),
+        },
     };
     false
 }
